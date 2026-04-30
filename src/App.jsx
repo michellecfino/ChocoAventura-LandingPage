@@ -21,10 +21,17 @@ import {
   trackGroupCreated 
 } from './utils/analytics'
 
-// Imágenes de prueba
+// Imágenes de prueba y assets
 import heroMockup from './assets/hero_mockup.png'
 import comuna13 from './assets/comuna_13.png'
 import coffeeFarm from './assets/coffee_farm.png'
+import bogota1 from './assets/bogota_1.png'
+import bogota2 from './assets/bogota_2.png'
+import bogota3 from './assets/bogota_3.png'
+import bogota4 from './assets/bogota_4.png'
+import bogota5 from './assets/bogota_5.png'
+import medellin1 from './assets/medellin_1.png'
+import { Trophy } from 'lucide-react'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -205,26 +212,40 @@ const SocialProof = () => (
 )
 
 const InteractiveDemo = () => {
+  const [step, setStep] = useState(0) // 0: Swipe, 1: Picks, 2: Results
   const [cards, setCards] = useState([
-    { id: 1, title: 'Graffititour Comuna 13', image: comuna13, rating: '4.9' },
-    { id: 2, title: 'Experiencia Finca Cafetera', image: coffeeFarm, rating: '4.8' },
-    { id: 3, title: 'Día de Sol en Guatapé', image: comuna13, rating: '4.9' },
+    { id: 1, title: 'Museo del Oro', image: bogota1, rating: '4.9', category: 'CULTURA', duration: '2h', price: '$15k', location: 'Bogotá' },
+    { id: 2, title: 'Cerro Monserrate', image: bogota2, rating: '4.8', category: 'NATURALEZA', duration: '3h', price: '$27k', location: 'Bogotá' },
+    { id: 3, title: 'La Candelaria', image: bogota3, rating: '4.9', category: 'HISTORIA', duration: '2h', price: 'Gratis', location: 'Bogotá' },
+    { id: 4, title: 'Ajiaco Santafereño', image: bogota4, rating: '4.7', category: 'GASTRONOMÍA', duration: '1.5h', price: '$45k', location: 'Bogotá' },
+    { id: 5, title: 'Catedral de Sal', image: bogota5, rating: '4.9', category: 'AVENTURA', duration: '5h', price: '$60k', location: 'Zipaquira' },
   ])
+  const [picks, setPicks] = useState([])
+  const [swipeDirection, setSwipeDirection] = useState(null)
 
   const removeCard = (id, direction) => {
+    setSwipeDirection(direction)
     const card = cards.find(c => c.id === id)
     if (card) {
       trackActivitySwipe(card.title, direction)
+      if (direction === 'right') {
+        setPicks(prev => [...prev, card])
+      }
     }
     
-    setCards((prev) => prev.filter(card => card.id !== id))
-    if (cards.length === 1) {
+    setTimeout(() => {
+      setCards((prev) => prev.filter(card => card.id !== id))
+      if (cards.length === 1) {
+        setTimeout(() => setStep(1), 600)
+      }
+      setSwipeDirection(null)
+    }, 200)
+  }
+
+  const handleNextStep = () => {
+    if (step === 1) {
       trackGroupCreated('demo-group-123', 4)
-      
-      setTimeout(() => setCards([
-        { id: 4, title: 'Graffititour Comuna 13', image: comuna13, rating: '4.9' },
-        { id: 5, title: 'Experiencia Finca Cafetera', image: coffeeFarm, rating: '4.8' },
-      ]), 1000)
+      setStep(2)
     }
   }
 
@@ -232,45 +253,144 @@ const InteractiveDemo = () => {
     <section id="demo" className="demo-section section-padding">
       <div className="container">
         <div className="section-header center">
-          <h2>Pruébalo tú mismo</h2>
-          <p>Desliza las tarjetas para ver cómo ChocoAventura encuentra tu plan ideal.</p>
+          <h2>{step === 0 ? 'Pruébalo tú mismo' : step === 1 ? 'Tus Elecciones' : 'Resultados del Grupo'}</h2>
+          <p>
+            {step === 0 
+              ? 'Desliza las tarjetas para ver cómo ChocoAventura encuentra tu plan ideal.' 
+              : step === 1 
+              ? 'Estas son las actividades que más te gustaron. ¡Tu grupo está votando!' 
+              : '¡La IA ha encontrado el consenso perfecto para tu parche!'}
+          </p>
         </div>
         
         <div className="demo-widget">
-          <div className="cards-stack">
-            <AnimatePresence>
-              {cards.map((card, index) => (
-                <motion.div
-                  key={card.id}
-                  drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  onDragEnd={(e, info) => {
-                    if (info.offset.x > 100) removeCard(card.id, 'right')
-                    if (info.offset.x < -100) removeCard(card.id, 'left')
-                  }}
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ 
-                    scale: 1 - (cards.length - 1 - index) * 0.05,
-                    opacity: 1,
-                    y: (cards.length - 1 - index) * -10
-                  }}
-                  exit={{ x: 500, opacity: 0, rotate: 20 }}
-                  className="demo-card"
-                  style={{ zIndex: index }}
-                >
-                  <img src={card.image} alt={card.title} />
-                  <div className="demo-card-content">
-                    <h3>{card.title}</h3>
-                    <div className="rating"><Star size={14} fill="#708238" color="#708238" /> {card.rating}</div>
+          <AnimatePresence mode="wait">
+            {step === 0 && (
+              <motion.div 
+                key="swipe-step"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="cards-stack"
+              >
+                <AnimatePresence>
+                  {cards.map((card, index) => (
+                    <motion.div
+                      key={card.id}
+                      drag="x"
+                      dragConstraints={{ left: 0, right: 0 }}
+                      onDragEnd={(e, info) => {
+                        if (info.offset.x > 100) removeCard(card.id, 'right')
+                        if (info.offset.x < -100) removeCard(card.id, 'left')
+                      }}
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ 
+                        scale: 1 - (cards.length - 1 - index) * 0.05,
+                        opacity: 1,
+                        y: (cards.length - 1 - index) * -10
+                      }}
+                      exit={{ x: swipeDirection === 'right' ? 500 : -500, opacity: 0, rotate: swipeDirection === 'right' ? 20 : -20 }}
+                      className="demo-card-figma"
+                      style={{ zIndex: index }}
+                    >
+                      <div className="card-image-container">
+                        <img src={card.image} alt={card.title} />
+                        <div className="card-rating-badge">
+                          <Star size={12} fill="#708238" color="#708238" /> {card.rating}
+                        </div>
+                      </div>
+                      <div className="demo-card-content">
+                        <span className="card-category">{card.category}</span>
+                        <h3>{card.title}</h3>
+                        <p className="card-proposer">Propuesto por ti</p>
+                        <p className="card-description">Explora lo mejor de {card.location} con esta experiencia única para tu grupo.</p>
+                        <div className="card-meta">
+                          <span>⏱ {card.duration}</span>
+                          <span>💰 {card.price}</span>
+                          <span>📍 {card.location}</span>
+                        </div>
+                      </div>
+                      <div className="swipe-hints">
+                        <span className="hint nope">Nop</span>
+                        <span className="hint like">Me gusta</span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+            )}
+
+            {step === 1 && (
+              <motion.div 
+                key="picks-step"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="picks-container"
+              >
+                <div className="picks-list">
+                  {picks.map((pick, i) => (
+                    <motion.div 
+                      key={pick.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="pick-item"
+                    >
+                      <img src={pick.image} alt={pick.title} className="pick-thumb" />
+                      <div className="pick-info">
+                        <h4>{pick.title}</h4>
+                        <p>{pick.duration} • {pick.price} • {pick.location}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                <button className="btn-primary full-width" onClick={handleNextStep}>
+                  Ver resultados del grupo
+                </button>
+              </motion.div>
+            )}
+
+            {step === 2 && (
+              <motion.div 
+                key="results-step"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="results-container"
+              >
+                <div className="results-header">
+                  <div className="trophy-icon">
+                    <Trophy size={40} color="#708238" />
                   </div>
-                  <div className="swipe-hints">
-                    <span className="hint nope">Nop</span>
-                    <span className="hint like">Me gusta</span>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
+                </div>
+                <div className="results-list">
+                  {[
+                    { id: 1, title: 'Museo del Oro', image: bogota1, votes: 165, rank: '#1' },
+                    { id: 2, title: 'Monserrate', image: bogota2, votes: 142, rank: '#2' },
+                    { id: 3, title: 'Plaza Botero', image: medellin1, votes: 128, rank: '#3' },
+                  ].map((res, i) => (
+                    <motion.div 
+                      key={res.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.2 }}
+                      className="result-card-horizontal"
+                      style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url(${res.image})` }}
+                    >
+                      <div className="result-rank">{res.rank}</div>
+                      <div className="result-content-bottom">
+                        <h4>{res.title}</h4>
+                        <div className="vote-pill">{res.votes} votos</div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                <button className="btn-primary outline" onClick={() => setStep(0)}>
+                  Reiniciar Demo
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </section>

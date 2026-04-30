@@ -514,3 +514,132 @@
 .swipe-hints {
   pointer-events: none;
 }
+
+/* Estilos para los Pasos Picks y Results */
+.picks-container, .results-container {
+  background: #fdf4e3;
+  padding: 24px;
+  border-radius: 32px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.picks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.pick-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid #eee;
+}
+
+.pick-thumb {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.pick-info h4 {
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+
+.pick-info p {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.results-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.trophy-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(112, 130, 56, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.result-card-horizontal {
+  position: relative;
+  height: 100px;
+  border-radius: 20px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 16px;
+  color: white;
+  overflow: hidden;
+}
+
+.result-rank {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--color-olive);
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+
+.result-content-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.result-content-bottom h4 {
+  color: white;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.vote-pill {
+  background: #708238;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.btn-primary.outline {
+  background: transparent;
+  border: 2px solid var(--color-olive);
+  color: var(--color-olive);
+}
+
+.btn-primary.outline:hover {
+  background: var(--color-olive);
+  color: white;
+}
