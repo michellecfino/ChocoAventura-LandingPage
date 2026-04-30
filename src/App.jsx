@@ -34,7 +34,7 @@ const Navbar = () => {
       <div className="container nav-content">
         <div className="logo">
           <span className="logo-icon"></span>
-          <span className="logo-text">ChocoAventuras</span>
+          <span className="logo-text">ChocoAventura</span>
         </div>
         
         <div className={`nav-links ${isOpen ? 'active' : ''}`}>
@@ -233,7 +233,7 @@ const InteractiveDemo = () => {
       <div className="container">
         <div className="section-header center">
           <h2>Pruébalo tú mismo</h2>
-          <p>Desliza las tarjetas para ver cómo ChocoAventuras encuentra tu plan ideal.</p>
+          <p>Desliza las tarjetas para ver cómo ChocoAventura encuentra tu plan ideal.</p>
         </div>
         
         <div className="demo-widget">
