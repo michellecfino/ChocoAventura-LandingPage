@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ArrowRight, 
@@ -26,7 +26,7 @@ import bogota2 from './assets/bogota_2.png'
 import bogota3 from './assets/bogota_3.png'
 import bogota4 from './assets/bogota_4.png'
 import bogota5 from './assets/bogota_5.png'
-import medellin1 from './assets/medellin_1.png'
+
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -205,6 +205,29 @@ const SocialProof = () => (
   </section>
 )
 
+const AuctionLoader = () => (
+  <motion.div 
+    initial={{ opacity: 0 }} 
+    animate={{ opacity: 1 }} 
+    exit={{ opacity: 0 }}
+    className="auction-loader"
+  >
+    <div className="ai-brain-icon">🧠</div>
+    <div className="consenso-badge">Calculando Consenso</div>
+    <div className="loading-bars">
+      {[...Array(5)].map((_, i) => (
+        <motion.div 
+          key={i}
+          animate={{ height: [10, 40, 15, 40, 10] }}
+          transition={{ repeat: Infinity, duration: 1, delay: i * 0.1 }}
+          className="loading-bar"
+        />
+      ))}
+    </div>
+    <p>Nuestra IA está analizando las preferencias del grupo...</p>
+  </motion.div>
+)
+
 const InteractiveDemo = () => {
   const [step, setStep] = useState(0) // 0: Swipe, 1: Picks, 1.5: Loading, 2: Results
   const [cards, setCards] = useState([
@@ -227,12 +250,19 @@ const InteractiveDemo = () => {
     
     setTimeout(() => {
       setCards((prev) => prev.filter(c => c.id !== id))
-      if (cards.length === 1) {
-        setTimeout(() => setStep(1), 600)
-      }
-      setSwipeDirection(null)
     }, 200)
+
+    // Limpiamos la dirección después de que la animación de salida termine
+    setTimeout(() => setSwipeDirection(null), 600)
   }
+
+  // Efecto para manejar la transición al terminar el swipe
+  useEffect(() => {
+    if (step === 0 && cards.length === 0) {
+      const timer = setTimeout(() => setStep(1), 500)
+      return () => clearTimeout(timer)
+    }
+  }, [cards.length, step])
 
   const handleNextStep = () => {
     setStep(1.5); // Paso de carga IA
