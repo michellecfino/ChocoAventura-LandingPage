@@ -2,16 +2,13 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ArrowRight, 
-  Smartphone, 
   Users, 
-  MessageCircle, 
   TrendingUp, 
-  Mic, 
-  Wallet, 
   Star,
   CheckCircle2,
   Menu,
-  X
+  X,
+  Trophy
 } from 'lucide-react'
 import './App.css'
 
@@ -21,17 +18,15 @@ import {
   trackGroupCreated 
 } from './utils/analytics'
 
-// Imágenes de prueba y assets
+// Imágenes de prueba
 import heroMockup from './assets/hero_mockup.png'
 import comuna13 from './assets/comuna_13.png'
-import coffeeFarm from './assets/coffee_farm.png'
 import bogota1 from './assets/bogota_1.png'
 import bogota2 from './assets/bogota_2.png'
 import bogota3 from './assets/bogota_3.png'
 import bogota4 from './assets/bogota_4.png'
 import bogota5 from './assets/bogota_5.png'
 import medellin1 from './assets/medellin_1.png'
-import { Trophy } from 'lucide-react'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -141,11 +136,11 @@ const SmartAuction = () => (
         </div>
         <div className="feature-content">
           <h2>Función Principal - Subasta Inteligente</h2>
-          <p>Nuestro Sistema de Subasta Inteligente usa IA para analizar el presupuesto, gustos y horarios del grupo para encontrar el consenso perfecto. Se acabaron los debates infinitos en WhatsApp.</p>
+          <p>Nuestro Sistema de Subasta Inteligente usa IA para analizar el presupuesto, gustos y horarios del grupo para encontrar el consenso perfecto.</p>
           <ul className="feature-list">
             <li><CheckCircle2 size={18} color="#708238" /> Optimización de presupuesto con IA</li>
             <li><CheckCircle2 size={18} color="#708238" /> Seguimiento de consenso en tiempo real</li>
-            <li><CheckCircle2 size={18} color="#708238" /> División de gastos justa y equitativa</li>
+            <li><CheckCircle2 size={18} color="#708238" /> División de gastos justa</li>
           </ul>
         </div>
       </div>
@@ -158,7 +153,7 @@ const VoiceAssistant = () => (
     <div className="container voice-container">
       <div className="voice-text">
         <h2>Planeación Manos Libres</h2>
-        <p>Solo di "Hola Choco" para añadir gastos, revisar el itinerario o actualizar al grupo. Nuestro asistente de voz mantiene tus ojos en el camino y tus manos en la aventura.</p>
+        <p>Solo di "Hola Choco" para añadir gastos o revisar el itinerario.</p>
       </div>
       <div className="voice-visual">
         <div className="voice-waves">
@@ -178,7 +173,6 @@ const VoiceAssistant = () => (
             />
           ))}
         </div>
-        <div className="howdy-tag">"Hola Choco, ¿cuál es nuestro presupuesto?"</div>
       </div>
     </div>
   </section>
@@ -201,7 +195,7 @@ const SocialProof = () => (
               <div className="rating">
                 {[...Array(5)].map((_, j) => <Star key={j} size={14} fill="#708238" color="#708238" />)}
               </div>
-              <p>"¡El sistema de deslizar hizo que fuera muy fácil ponernos de acuerdo! Fue lo mejor de nuestro viaje a Medellín."</p>
+              <p>"¡El sistema de deslizar hizo que fuera muy fácil ponernos de acuerdo!"</p>
               <div className="reviewer">- Marco y su parche</div>
             </div>
           </div>
@@ -212,7 +206,7 @@ const SocialProof = () => (
 )
 
 const InteractiveDemo = () => {
-  const [step, setStep] = useState(0) // 0: Swipe, 1: Picks, 2: Results
+  const [step, setStep] = useState(0) // 0: Swipe, 1: Picks, 1.5: Loading, 2: Results
   const [cards, setCards] = useState([
     { id: 1, title: 'Museo del Oro', image: bogota1, rating: '4.9', category: 'CULTURA', duration: '2h', price: '$15k', location: 'Bogotá' },
     { id: 2, title: 'Cerro Monserrate', image: bogota2, rating: '4.8', category: 'NATURALEZA', duration: '3h', price: '$27k', location: 'Bogotá' },
@@ -228,13 +222,11 @@ const InteractiveDemo = () => {
     const card = cards.find(c => c.id === id)
     if (card) {
       trackActivitySwipe(card.title, direction)
-      if (direction === 'right') {
-        setPicks(prev => [...prev, card])
-      }
+      if (direction === 'right') setPicks(prev => [...prev, card])
     }
     
     setTimeout(() => {
-      setCards((prev) => prev.filter(card => card.id !== id))
+      setCards((prev) => prev.filter(c => c.id !== id))
       if (cards.length === 1) {
         setTimeout(() => setStep(1), 600)
       }
@@ -243,23 +235,27 @@ const InteractiveDemo = () => {
   }
 
   const handleNextStep = () => {
-    if (step === 1) {
-      trackGroupCreated('demo-group-123', 4)
-      setStep(2)
-    }
-  }
+    setStep(1.5); // Paso de carga IA
+    trackGroupCreated('demo-group-123', 4);
+    setTimeout(() => {
+      setStep(2); // Paso de resultados
+    }, 3000);
+  };
 
   return (
-    <section id="demo" className="demo-section section-padding">
+    <section id="demo" className="demo-section section-padding" style={{ overscrollBehaviorX: 'none' }}>
       <div className="container">
         <div className="section-header center">
-          <h2>{step === 0 ? 'Pruébalo tú mismo' : step === 1 ? 'Tus Elecciones' : 'Resultados del Grupo'}</h2>
+          <h2>
+            {step === 0 && "Pruébalo tú mismo"}
+            {step === 1 && "Tus Elecciones"}
+            {step === 1.5 && "Analizando..."}
+            {step === 2 && "Resultados del Grupo"}
+          </h2>
           <p>
-            {step === 0 
-              ? 'Desliza las tarjetas para ver cómo ChocoAventura encuentra tu plan ideal.' 
-              : step === 1 
-              ? 'Estas son las actividades que más te gustaron. ¡Tu grupo está votando!' 
-              : '¡La IA ha encontrado el consenso perfecto para tu parche!'}
+            {step === 0 && "Desliza a la derecha si te gusta, a la izquierda si no."}
+            {step === 1 && "Esto es lo que guardaste. ¡Calculando consenso!"}
+            {step === 2 && "¡La IA encontró el plan perfecto para todos!"}
           </p>
         </div>
         
@@ -268,16 +264,21 @@ const InteractiveDemo = () => {
             {step === 0 && (
               <motion.div 
                 key="swipe-step"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
                 className="cards-stack"
+                style={{ 
+                  touchAction: 'none', 
+                  position: 'relative', 
+                  height: '450px',
+                  display: 'flex',
+                  justifyContent: 'center'
+                }}
               >
                 <AnimatePresence>
                   {cards.map((card, index) => (
                     <motion.div
                       key={card.id}
                       drag="x"
+                      dragDirectionLock
                       dragConstraints={{ left: 0, right: 0 }}
                       onDragEnd={(e, info) => {
                         if (info.offset.x > 100) removeCard(card.id, 'right')
@@ -287,14 +288,24 @@ const InteractiveDemo = () => {
                       animate={{ 
                         scale: 1 - (cards.length - 1 - index) * 0.05,
                         opacity: 1,
-                        y: (cards.length - 1 - index) * -10
+                        y: (cards.length - 1 - index) * -10,
+                        x: 0
                       }}
-                      exit={{ x: swipeDirection === 'right' ? 500 : -500, opacity: 0, rotate: swipeDirection === 'right' ? 20 : -20 }}
+                      exit={{ 
+                        x: swipeDirection === 'right' ? 500 : -500, 
+                        opacity: 0, 
+                        rotate: swipeDirection === 'right' ? 20 : -20 
+                      }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                       className="demo-card-figma"
-                      style={{ zIndex: index }}
+                      style={{ 
+                        zIndex: index, 
+                        position: 'absolute', 
+                        touchAction: 'none' 
+                      }}
                     >
                       <div className="card-image-container">
-                        <img src={card.image} alt={card.title} />
+                        <img src={card.image} alt={card.title} style={{ pointerEvents: 'none' }} />
                         <div className="card-rating-badge">
                           <Star size={12} fill="#708238" color="#708238" /> {card.rating}
                         </div>
@@ -302,17 +313,10 @@ const InteractiveDemo = () => {
                       <div className="demo-card-content">
                         <span className="card-category">{card.category}</span>
                         <h3>{card.title}</h3>
-                        <p className="card-proposer">Propuesto por ti</p>
-                        <p className="card-description">Explora lo mejor de {card.location} con esta experiencia única para tu grupo.</p>
                         <div className="card-meta">
                           <span>⏱ {card.duration}</span>
                           <span>💰 {card.price}</span>
-                          <span>📍 {card.location}</span>
                         </div>
-                      </div>
-                      <div className="swipe-hints">
-                        <span className="hint nope">Nop</span>
-                        <span className="hint like">Me gusta</span>
                       </div>
                     </motion.div>
                   ))}
@@ -322,25 +326,25 @@ const InteractiveDemo = () => {
 
             {step === 1 && (
               <motion.div 
-                key="picks-step"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
+                key="picks-step" 
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                exit={{ opacity: 0 }} 
                 className="picks-container"
               >
                 <div className="picks-list">
                   {picks.map((pick, i) => (
                     <motion.div 
-                      key={pick.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.1 }}
+                      key={pick.id} 
+                      initial={{ opacity: 0, x: -20 }} 
+                      animate={{ opacity: 1, x: 0 }} 
+                      transition={{ delay: i * 0.1 }} 
                       className="pick-item"
                     >
                       <img src={pick.image} alt={pick.title} className="pick-thumb" />
                       <div className="pick-info">
                         <h4>{pick.title}</h4>
-                        <p>{pick.duration} • {pick.price} • {pick.location}</p>
+                        <p>{pick.location} • {pick.duration}</p>
                       </div>
                     </motion.div>
                   ))}
@@ -351,42 +355,43 @@ const InteractiveDemo = () => {
               </motion.div>
             )}
 
+            {step === 1.5 && (
+              <AuctionLoader key="loader" />
+            )}
+
             {step === 2 && (
               <motion.div 
-                key="results-step"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
+                key="results-step" 
+                initial={{ opacity: 0, scale: 0.9 }} 
+                animate={{ opacity: 1, scale: 1 }} 
                 className="results-container"
               >
                 <div className="results-header">
-                  <div className="trophy-icon">
-                    <Trophy size={40} color="#708238" />
-                  </div>
+                  <Trophy size={48} color="#708238" />
                 </div>
                 <div className="results-list">
-                  {[
-                    { id: 1, title: 'Museo del Oro', image: bogota1, votes: 165, rank: '#1' },
-                    { id: 2, title: 'Monserrate', image: bogota2, votes: 142, rank: '#2' },
-                    { id: 3, title: 'Plaza Botero', image: medellin1, votes: 128, rank: '#3' },
-                  ].map((res, i) => (
+                  {picks.slice(0, 3).map((res, i) => (
                     <motion.div 
-                      key={res.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.2 }}
-                      className="result-card-horizontal"
-                      style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url(${res.image})` }}
+                      key={res.id} 
+                      initial={{ opacity: 0, y: 20 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      transition={{ delay: i * 0.2 }} 
+                      className="result-card-horizontal" 
+                      style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url(${res.image})` }}
                     >
-                      <div className="result-rank">{res.rank}</div>
+                      <div className="result-rank">#{i + 1}</div>
                       <div className="result-content-bottom">
                         <h4>{res.title}</h4>
-                        <div className="vote-pill">{res.votes} votos</div>
+                        <div className="vote-pill">98% de coincidencia</div>
                       </div>
                     </motion.div>
                   ))}
                 </div>
-                <button className="btn-primary outline" onClick={() => setStep(0)}>
-                  Reiniciar Demo
+                <button 
+                  className="btn-primary outline" 
+                  onClick={() => { setCards([...picks]); setStep(0); setPicks([]); }}
+                >
+                  Reiniciar aventura
                 </button>
               </motion.div>
             )}
@@ -407,19 +412,8 @@ function App() {
       <VoiceAssistant />
       <SocialProof />
       <InteractiveDemo />
-      
       <footer className="footer section-padding">
-        <div className="container">
-          <div className="footer-cta">
-            <h2>¿Listo para tu próxima aventura?</h2>
-            <button
-            onClick={trackStartPlanning}
-            className="btn-primary">Empezar aventura grupal</button>
-          </div>
-          <div className="footer-bottom">
-            <p>&copy; 2026 ChocoAventuras. Todos los derechos reservados.</p>
-          </div>
-        </div>
+        <p>&copy; 2026 ChocoAventuras.</p>
       </footer>
     </div>
   )
